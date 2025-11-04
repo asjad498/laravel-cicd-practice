@@ -1,8 +1,8 @@
 # Use official PHP image with Apache
 FROM php:8.2-apache
 
-# Install required extensions
-RUN docker-php-ext-install pdo pdo_mysql
+# Install required extensions and Composer
+RUN apt-get update && apt-get install -y zip unzip git && docker-php-ext-install pdo pdo_mysql
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
@@ -10,7 +10,14 @@ RUN a2enmod rewrite
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy project files
+# Copy composer files first for caching
+COPY composer.json composer.lock ./
+
+# Install composer dependencies
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+    && composer install --no-dev --optimize-autoloader
+
+# Copy the rest of the project
 COPY . .
 
 # Set correct Apache DocumentRoot
