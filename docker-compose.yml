@@ -18,6 +18,10 @@ services:
       - DB_DATABASE=laravel
       - DB_USERNAME=laravel
       - DB_PASSWORD=laravel
+    working_dir: /var/www/html
+    command: >
+      bash -c "sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf &&
+               apache2-foreground"
 
   db:
     image: mysql:8
